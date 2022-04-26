@@ -1,0 +1,46 @@
+name: my-release
+# This workflow is triggered when publishing a new github release
+on:
+  release:
+    types:
+      - published
+
+env:
+  PYTHONUNBUFFERED: 1
+
+jobs:
+  my_release:
+    runs-on: ubuntu-latest
+    name: Start release process
+    steps:
+      - run: echo 'Simulating actual release...'
+      - id: extract_version
+        shell: python
+        run: |
+          #
+          # Extract version, build file name and download URL from GH ref
+          #
+          import os
+          tagName = ${{ github.ref_name }}
+          # tagName = <version>+<buildId>
+          version = tagName.split('+')[0]
+
+          artifactoryPublicRepo = 'https://repox.jfrog.io/artifactory/sonarsource-public-releases'
+          slvscodeBaseUrl = f'{artifactoryPublicRepo}/org/sonarsource/sonarlint/vscode/sonarlint-vscode'
+          artifactName = f'sonarlint-vscode-{version}.vsix'
+          artifactUrl = f'{slvscodeBaseUrl}/{version}/{artifactName}'
+
+          print(f'::set-output name=artifactUrl::{artifactUrl}')
+          print(f'::set-output name=artifactName::{artifactName}')
+      - run: curl -o ${{ steps.extract_version.outputs.artifactName }} ${{ steps.extract_version.outputs.artifactUrl }}
+
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Simulate deploy to OpenVSX
+        if: success()
+        id: ovsx_deploy
+        env:
+          ARTIFACT_NAME: ${{ steps.extract_version.outputs.artifactName }}
+        uses: ./.github/actions/ovsx-deploy

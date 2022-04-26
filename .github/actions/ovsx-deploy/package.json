@@ -1,0 +1,10 @@
+{
+  "name": "ovsx-deploy",
+  "version": "0.1",
+  "author": {
+    "name": "jblievremont",
+    "url": "https://github.com/jblievremont"
+  },
+  "license": "MIT",
+  "type": "module"
+}
