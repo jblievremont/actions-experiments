@@ -13,15 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Start release process
     steps:
-      - run: echo 'Simulating actual release...'
-      - id: extract_version
+      - name: Simulating actual release
+        run: echo 'Simulating actual release...'
+      - name: Extract version, file name and download URL
+        id: extract_version
         shell: python
         run: |
           #
           # Extract version, build file name and download URL from GH ref
           #
           import os
-          tagName = ${{ github.ref_name }}
+          tagName = '${{ github.ref_name }}'
           # tagName = <version>+<buildId>
           version = tagName.split('+')[0]
 
@@ -32,13 +34,15 @@ jobs:
 
           print(f'::set-output name=artifactUrl::{artifactUrl}')
           print(f'::set-output name=artifactName::{artifactName}')
-      - run: curl -o ${{ steps.extract_version.outputs.artifactName }} ${{ steps.extract_version.outputs.artifactUrl }}
-
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Download promoted file
+        run: curl -o ${{ steps.extract_version.outputs.artifactName }} ${{ steps.extract_version.outputs.artifactUrl }}
+      - name: Checkout custom action
+        uses: actions/checkout@v2
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - name: Simulate deploy to OpenVSX
+      - name: Simulate deployment to OpenVSX
         if: success()
         id: ovsx_deploy
         env:
