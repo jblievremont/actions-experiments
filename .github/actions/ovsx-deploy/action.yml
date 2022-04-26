@@ -1,0 +1,6 @@
+name: ovsx-deploy
+author: jblievremont
+description: Simulate publication of a VSIX to OpenVSX
+runs:
+  using: node16
+  main: main.js
