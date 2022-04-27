@@ -35,7 +35,10 @@ jobs:
           print(f'::set-output name=artifactUrl::{artifactUrl}')
           print(f'::set-output name=artifactName::{artifactName}')
       - name: Download promoted file
-        run: curl -o ${{ steps.extract_version.outputs.artifactName }} ${{ steps.extract_version.outputs.artifactUrl }}
+        id: download_artifact
+        run: |
+          curl -o ${{ steps.extract_version.outputs.artifactName }} ${{ steps.extract_version.outputs.artifactUrl }}
+          echo '::set-output name=artifactFile::'$(pwd)/${{ steps.extract_version.outputs.artifactName }}
       - name: Checkout custom action
         uses: actions/checkout@v2
       - name: Setup Node 16
@@ -46,5 +49,5 @@ jobs:
         if: success()
         id: ovsx_deploy
         env:
-          ARTIFACT_NAME: ${{ steps.extract_version.outputs.artifactName }}
+          ARTIFACT_NAME: ${{ steps.download_artifact.outputs.artifactFile }}
         uses: ./.github/actions/ovsx-deploy
