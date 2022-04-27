@@ -13,6 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Start release process
     steps:
+      - name: Checkout custom action
+        uses: actions/checkout@v2
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       - name: Simulating actual release
         run: echo 'Simulating actual release...'
       - name: Extract version, file name and download URL
@@ -39,12 +45,6 @@ jobs:
         run: |
           curl -o ${{ steps.extract_version.outputs.artifactName }} ${{ steps.extract_version.outputs.artifactUrl }}
           echo '::set-output name=artifactFile::'$(pwd)/${{ steps.extract_version.outputs.artifactName }}
-      - name: Checkout custom action
-        uses: actions/checkout@v2
-      - name: Setup Node 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
       - name: Simulate deployment to OpenVSX
         if: success()
         id: ovsx_deploy
